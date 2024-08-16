@@ -1,0 +1,35 @@
+ Define the registry path for Chrome policies
+$regPath = "HKLM:\SOFTWARE\Policies\Google\Chrome\URLBlocklist"
+
+# Define the URLs to block
+$urls = @(
+    "facebook.com",
+    "twitter.com",
+    "instagram.com",
+    "linkedin.com",
+    "pinterest.com",
+    "reddit.com",
+    "tumblr.com",
+    "snapchat.com",
+    "youtube.com",
+    "tiktok.com"
+)
+
+# Check if the registry path exists, create it if it does not
+if (-not (Test-Path $regPath)) {
+    New-Item -Path $regPath -Force | Out-Null
+    Write-Host "Registry path '$regPath' created."
+}
+
+# Add each URL as a separate registry value under URLBlocklist
+foreach ($index in 0..($urls.Length - 1)) {
+    $valueName = ($index + 1).ToString() # Label each entry from 1 to 10
+    $valueData = $urls[$index]
+    
+    try {
+        Set-ItemProperty -Path $regPath -Name $valueName -Value $valueData
+        Write-Host "Added $valueName with URL $valueData."
+    } catch {
+        Write-Error "Failed to set registry value '$valueName'. Error: $_"
+    }
+}
